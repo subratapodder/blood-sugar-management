@@ -1,0 +1,123 @@
+<?php
+use Drupal\user\Entity\User;
+use Drupal\user\Entity\Role;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_install().
+ */
+function bs_manager_install() {
+    // Create role Admin
+    $role = Role::create(array('id' => 'auxesis_admin', 'label' => 'Admin'));
+    $role->save();
+    // Create role User
+    $role = Role::create(array('id' => 'auxesis_user', 'label' => 'User'));
+    $role->save();
+    // Add a new admin user
+    $admin_email = "admin@auxesisinfotech.com";
+    $user = User::create();
+    $user->setPassword("auxesisPass");
+    $user->enforceIsNew();
+    $user->setEmail($admin_email);
+    $user->set("init", $admin_email);
+    $user->setUsername("auxesis_admin"); 
+    $user->addRole('auxesis_admin'); 
+    $user->activate();
+    //Save user
+    $user->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function bs_manager_uninstall() {
+  $role = 'auxesis_user';
+  $ids = \Drupal::entityQuery('user')
+    ->condition('roles', $role)
+    ->execute();
+  $users = User::loadMultiple($ids);
+  foreach($users as $user) {
+    $user->delete();
+  }
+  $role_admin = 'auxesis_admin';
+  $admin_ids = \Drupal::entityQuery('user')
+    ->condition('roles', $role_admin)
+    ->execute();
+  $admin_users = User::loadMultiple($admin_ids);
+  foreach($admin_users as $auser) {
+    $auser->delete();
+  }
+  // Delete roles
+  $admin_role = Role::load($role_admin);
+  if ($admin_role) $admin_role->delete();
+  $user_role = Role::load($role);
+  if ($user_role) $user_role->delete();
+  // Deleting field storage.
+  if ($field_storage = FieldStorageConfig::loadByName('user', 'field_bsuser_fullname')) {
+      $field_storage->delete();
+  }
+  // Deleting field.
+  if ($field_config = FieldConfig::loadByName('user', 'user', 'field_bsuser_fullname')) {
+      $field_config->delete();
+  }
+  // Clear forum moderation data out of the cache.
+  \Drupal::cache('data')->deleteAll();
+}
+
+/**
+ * Implements hook_schema().
+ */
+function bs_manager_schema() {
+    // Table to store blood sugar records
+    $schema['bs_records'] = [
+      'description' => 'Store blood sugar related info',
+      'fields' => [
+        'id' => [
+            'type' => 'serial',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+        ],
+        'uid' => [
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 0,
+            'description' => 'The drupal user id',
+        ],
+        'bs_value' => [
+            'type' => 'varchar',
+            'length' => 100,
+            'not null' => TRUE,
+            'description' => 'Blood sugar value',
+        ],
+        'created' => [            
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 0,
+            'description' => 'The Unix record created timestamp',
+        ],        
+      ],
+      'primary key' => ['id'],
+    ];  
+    // Table to store prescription file description
+    $schema['bs_file_details'] = [
+        'description' => 'Store blood sugar file description',
+        'fields' => [
+          'fid' => [
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'description' => 'The drupal file id',            
+          ],     
+          'description' => [
+            'type' => 'text',
+            'null' => TRUE,              
+            'description' => 'File description',              
+          ],      
+        ],
+      ];
+    
+    return $schema;
+  }

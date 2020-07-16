@@ -1,0 +1,59 @@
+bs_manager.register:
+  path: '/bs/user/signup'
+  defaults:
+    _form: '\Drupal\bs_manager\Form\UserSignupForm'
+    _title: 'User Signup'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'FALSE'
+bs_manager.login:
+  path: '/bs/user/login'
+  defaults:
+    _form: '\Drupal\bs_manager\Form\UserLoginForm'
+    _title: 'Login Interface'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'FALSE'
+bs_manager.reset:
+  path: '/bs/user/set/password/{uid}/{timestamp}/{hash}' 
+  defaults:
+    _controller: '\Drupal\bs_manager\Controller\BsManagerController::userPasswordSet'
+    _title: 'Set your password'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'FALSE'
+bs_manager.admin_dashboard:
+  path: '/bs/admin/dashboard'
+  defaults:
+    _controller: '\Drupal\bs_manager\Controller\BsManagerController::adminDashBoard'
+    _title: 'Admin Dashboard'
+  requirements:
+    _role: 'auxesis_admin'
+bs_manager.admin_create_admin:
+  path: '/bs/admin/create/admin'
+  defaults:
+    _form: '\Drupal\bs_manager\Form\CreateNewAdminForm'
+    _title: 'Create New Admin'
+  requirements:
+    _role: 'auxesis_admin'
+bs_manager.admin_create_config:
+  path: '/bs/admin/create/config'
+  defaults:
+    _form: '\Drupal\bs_manager\Form\AdminSettingsForm'
+    _title: 'Set Configuration'
+  requirements:
+    _role: 'auxesis_admin'
+bs_manager.my_space:
+  path: '/bs/user/my-space'
+  defaults:
+    _controller: '\Drupal\bs_manager\Controller\BsManagerController::mySpace'
+    _title: 'My Space'
+  requirements:
+    _role: 'auxesis_user'
+bs_manager.attach_prescription:
+  path: '/bs/user/my-space/attach-prescription'
+  defaults:
+    _form: '\Drupal\bs_manager\Form\PrescriptionAttachmentForm'
+    _title: 'Add Prescription'
+  requirements:
+    _role: 'auxesis_user'

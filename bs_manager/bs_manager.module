@@ -1,0 +1,18 @@
+<?php
+
+/**
+* Implements hook_mail().
+*/
+function bs_manager_mail($key, &$message, $params) {
+    $options = array(
+      'langcode' => $message['langcode'],
+    );
+   
+    switch ($key) {
+      case 'user_register':
+        $message['from'] = \Drupal::config('system.site')->get('mail');
+        $message['subject'] = t('Registration successful with username : @user_name', array('@user_name' => $params['user_name']), $options);
+        $message['body'][] = $params['message'];
+        break;
+    }
+   }

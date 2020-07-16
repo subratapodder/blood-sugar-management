@@ -1,5 +1,6 @@
 # blood-sugar-management
-A custom module for managing users blood sugar information
+A custom module for managing users blood sugar information with prescription
+
 There will be two user types - admin and user. 
 
 User Flow:
